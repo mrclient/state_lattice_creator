@@ -61,11 +61,42 @@ function [a, b, c, d, sf, status] = find_curve(k0, xf, yf, theta_f, kf)
     sf = res(4);
 endfunction
 
-function [x,y] = points(a, b, c, d, sf)
+
+function [x, y, theta] = poses(a, b, c, d, sf)
     i = 1;
     for s = 0:(0.01*sf):sf
         x(:,i) = C(0, a, b, c, d, s);
         y(:,i) = S(0, a, b, c, d, s);
+        theta(:,i) = a*s + b*s^2/2 + c*s^3/3 + d*s^4/4;
         i = i + 1;
     end
+endfunction
+
+
+function write_points(des, num, xy, theta)
+
+    mfprintf(des, "%d\n", num);
+
+    for i = 1:max(size(xy))
+        mfprintf(des, "%f ", xy(1, i));
+    end
+    mfprintf(des, "\n");
+
+    for i = 1:max(size(xy))
+        mfprintf(des, "%f ", xy(2, i));
+    end
+    mfprintf(des, "\n");
+
+    for i = 1:max(size(xy))
+        mfprintf(des, "%f ", theta(i));
+    end
+    mfprintf(des, "\n");
+endfunction
+
+
+function write_vertices(des, theta_0, k0, theta_f, kf, dx, dy, sf, num)
+    mfprintf(des, "%f %f %f %f %f %f %f %d %d\n", theta_0, k0, theta_f, kf, dx, dy, sf, num, 0)
+    mfprintf(des, "%f %f %f %f %f %f %f %d %d\n", %pi-theta_0, -k0, %pi-theta_f, -kf, -dx, dy, sf, num, 1);
+    mfprintf(des, "%f %f %f %f %f %f %f %d %d\n", -theta_0, -k0, -theta_f, -kf, dx, -dy, sf, num, 2);
+    mfprintf(des, "%f %f %f %f %f %f %f %d %d\n", theta_0-%pi, k0, theta_f-%pi, kf, -dx, -dy, sf, num, 3);
 endfunction

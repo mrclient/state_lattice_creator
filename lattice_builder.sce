@@ -14,8 +14,11 @@ k = [0, -4, 4];
 sz = size(theta_des);
 theta_num = sz(1);
 
-counter = 1
+total = 1;
+success = 1;
 kolor = 1;
+v_file = mopen(path + "vertices.txt", "wt");
+p_file = mopen(path + "points.txt", "wt");
 for yf = 0:floor(N/2)
     for xf = 0:floor(N/2)
         if xf == 0 & yf == 0 then
@@ -37,13 +40,18 @@ for yf = 0:floor(N/2)
                 theta_f = theta_f - theta_0;
                 for k0 = k
                     for kf = k
-                        counter = counter + 1;
+                        total = total + 1;
                         [a, b, c, d, sf, status] = find_curve(k0, new_xf, new_yf, theta_f, kf);
-                        // plotting
+
+                        // checking for results; saving; plotting
                         if status == 1 then
-                            [x, y] = points(a, b, c, d, sf);
+                            [x, y, theta] = poses(a, b, c, d, sf);
                             xy = rotate([x;y], theta_0)
+                            theta = theta + theta_0;
+                            write_vertices(v_file, theta_0, k0, theta_f+theta_0, kf, xf*step, yf*step, sf, success);
+                            write_points(p_file, success, xy, theta)
                             plot2d(xy(1,:), xy(2,:), kolor);
+                            success = success + 1;
                         else
                             printf("Bad status for kolor = %d\n", kolor);
                             printf("k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", k0, xf, yf, theta_f+theta_0, kf);
@@ -60,4 +68,6 @@ for yf = 0:floor(N/2)
         end
     end
 end
-
+mclose(p_file);
+mclose(v_file);
+printf("total = %d\nsuccess = %d\npercentage = %.2f\n", total, success, 100*success/total);
