@@ -51,9 +51,9 @@ endfunction
 function [a, b, c, d, sf, status] = find_curve(k0, xf, yf, theta_f, kf)
     res_0 = [0; 0; 0; sqrt(xf^2+yf^2)];
     [res, g_val, status] = fsolve(res_0, list(g, k0, xf, yf, theta_f, kf), list(grad_g, k0, xf, yf, theta_f, kf));
-    disp(res,'coeffs from fsolve:');
-    disp(g_val,'value of g from fsolve:');
-    disp(status,'info from fsolve:');
+//    disp(res,'coeffs from fsolve:');
+//    disp(g_val,'value of g from fsolve:');
+//    disp(status,'info from fsolve:');
     a = k0;
     b = res(1);
     c = res(2);

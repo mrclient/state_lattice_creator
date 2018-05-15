@@ -23,13 +23,17 @@ for yf = 0:floor(N/2)
         end
         for i = 1:theta_num
             theta_0 = atan(theta_des(i,2), theta_des(i,1));
-            printf("1)theta_0 = %f, xf = %f, yf = %f\n", theta_0, xf, yf);
             new_xy = rotate([xf*step;yf*step], -theta_0);
             new_xf = new_xy(1);
             new_yf = new_xy(2);
-            printf("2)theta_0 = %f, xf = %f, yf = %f\n", theta_0, xf, yf);
             for j = 1:theta_num
                 theta_f = atan(theta_des(j,2), theta_des(j,1));
+
+                // the ban of S-shaped turns
+                if clean([cos(theta_0), sin(theta_0)] * [-yf;xf] * [cos(theta_f), sin(theta_f)] * [-yf;xf]) > 0 then
+                    continue;
+                end
+
                 theta_f = theta_f - theta_0;
                 for k0 = k
                     for kf = k
@@ -41,8 +45,10 @@ for yf = 0:floor(N/2)
                             xy = rotate([x;y], theta_0)
                             plot2d(xy(1,:), xy(2,:), kolor);
                         else
-                            printf("Bad status for kolor = %d", kolor);
-                            disp(k0, new_xf, new_yf, theta_f, kf);
+                            printf("Bad status for kolor = %d\n", kolor);
+                            printf("k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", k0, xf, yf, theta_f+theta_0, kf);
+                            printf("k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", k0, new_xf, new_yf, theta_f, kf);
+                            printf("----------------\n");
                         end
                     end
                 end
