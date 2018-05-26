@@ -19,26 +19,25 @@ success = 1;
 kolor = 1;
 v_file = mopen(path + "vertices.txt", "wt");
 p_file = mopen(path + "points.txt", "wt");
-for yf = 0:floor(N/2)
-    for xf = 0:floor(N/2)
-        if xf == 0 & yf == 0 then
-            continue;
-        end
-        for i = 1:theta_num
-            theta_0 = atan(theta_des(i,2), theta_des(i,1));
-            new_xy = rotate([xf*step;yf*step], -theta_0);
-            new_xf = new_xy(1);
-            new_yf = new_xy(2);
-            for j = 1:theta_num
-                theta_f = atan(theta_des(j,2), theta_des(j,1));
-
-                // the ban of S-shaped turns
-                if clean([cos(theta_0), sin(theta_0)] * [-yf;xf] * [cos(theta_f), sin(theta_f)] * [-yf;xf]) > 0 then
+for i = 1:theta_num
+    for k0 = k
+        theta_0 = atan(theta_des(i,2), theta_des(i,1));
+        for yf = 0:floor(N/2)
+            for xf = 0:floor(N/2)
+                if xf == 0 & yf == 0 then
                     continue;
                 end
+                new_xy = rotate([xf*step;yf*step], -theta_0);
+                new_xf = new_xy(1);
+                new_yf = new_xy(2);
+                for j = 1:theta_num
+                    theta_f = atan(theta_des(j,2), theta_des(j,1));
 
-                theta_f = theta_f - theta_0;
-                for k0 = k
+                    // the ban of S-shaped turns
+                    if clean([cos(theta_0), sin(theta_0)] * [-yf;xf] * [cos(theta_f), sin(theta_f)] * [-yf;xf]) > 0 then
+                        continue;
+                    end
+                    theta_f = theta_f - theta_0;
                     for kf = k
                         total = total + 1;
                         [a, b, c, d, sf, status] = find_curve(k0, new_xf, new_yf, theta_f, kf);
@@ -61,10 +60,10 @@ for yf = 0:floor(N/2)
                     end
                 end
             end
-            kolor = kolor + 1;
-            if kolor == 8 then
-                kolor = kolor + 1
-            end
+        end
+        kolor = kolor + 1;
+        if kolor == 8 then
+            kolor = kolor + 1
         end
     end
 end
