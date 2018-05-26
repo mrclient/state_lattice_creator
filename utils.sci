@@ -25,40 +25,26 @@ endfunction
 // function of constraints that must be equal to zero
 function [y] = g(x, k0, xf, yf, theta_f, kf)
     a = k0;
-    b = x(1);
-    c = x(2);
-    d = x(3);
-    sf = x(4);
-    y(1) = a + b*sf + c*sf^2 + d*sf^3 - kf;
-    y(2) = a*sf + b*sf^2/2 + c*sf^3/3 + d*sf^4/4 - theta_f;
-    y(3) = C(0, a, b, c, d, sf) - xf;
-    y(4) = S(0, a, b, c, d, sf) - yf;
+    d = x(1);
+    sf = x(2);
+    b = ((-4*kf - 8*k0)*sf + d*sf^4 + 12*theta_f) / (2 * sf^2);
+    c = -((-6*kf-6*k0)*sf + 3*d*sf^4 + 12*theta_f) / (2*sf^3);
+    y(1) = C(0, a, b, c, d, sf) - xf;
+    y(2) = S(0, a, b, c, d, sf) - yf;
 endfunction
 
-// the function gradient
-function [y] = grad_g(x, k0, xf, yf, theta_f, kf)
-    a = k0;
-    b = x(1);
-    c = x(2);
-    d = x(3);
-    sf = x(4);
-    y(1,:) = [sf, sf^2, sf^3, b + 2*c*sf + 3*d*sf^2];
-    y(2,:) = [sf^2/2, sf^3/3, sf^4/4, a + b*sf + c*sf^2 + d*sf^3];
-    y(3,:) = [-S(1, a, b, c, d, sf), -S(2, a, b, c, d, sf)/2, -S(3, a, b, c, d, sf)/3, cosTheta(0, a, b, c, d, sf)];
-    y(4,:) = [C(1, a, b, c, d, sf), C(2, a, b, c, d, sf)/2, C(3, a, b, c, d, sf)/3, sinTheta(0, a, b, c, d, sf)];
-endfunction
 
 function [a, b, c, d, sf, status] = find_curve(k0, xf, yf, theta_f, kf)
-    res_0 = [0; 0; 0; sqrt(xf^2+yf^2)];
-    [res, g_val, status] = fsolve(res_0, list(g, k0, xf, yf, theta_f, kf), list(grad_g, k0, xf, yf, theta_f, kf));
+    res_0 = [0; (theta_f^2/5 + 1)*sqrt(xf^2+yf^2)];
+    [res, g_val, status] = fsolve(res_0, list(g, k0, xf, yf, theta_f, kf));
 //    disp(res,'coeffs from fsolve:');
 //    disp(g_val,'value of g from fsolve:');
 //    disp(status,'info from fsolve:');
     a = k0;
-    b = res(1);
-    c = res(2);
-    d = res(3);
-    sf = res(4);
+    d = res(1);
+    sf = res(2);
+    b = ((-4*kf - 8*k0)*sf + d*sf^4 + 12*theta_f) / (2 * sf^2);
+    c = -((-6*kf-6*k0)*sf + 3*d*sf^4 + 12*theta_f) / (2*sf^3);
 endfunction
 
 
