@@ -70,6 +70,10 @@ for i = 1:theta_num
                     end
                     theta_f = theta_f - theta_0;
                     for kf = k
+                        // the ban of S-shaped turns. part 2 "The curvature time"
+                        if k0*kf < 0 then
+                            continue;
+                        end
                         total = total + 1;
                         [a, b, c, d, sf, status] = find_curve(k0, new_xf, new_yf, theta_f, kf);
 
@@ -84,8 +88,8 @@ for i = 1:theta_num
                             success = success + 1;
                         else
                             printf("Bad status for kolor = %d\n", kolor);
-                            printf("k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", k0, xf, yf, theta_f+theta_0, kf);
-                            printf("k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", k0, new_xf, new_yf, theta_f, kf);
+                            printf("Bad status = %d for kolor = %d\n", status, kolor);
+                            printf("theta0 = %f, k0 = %f, xf = %f, yf = %f, theta_f = %f, kf = %f\n", theta_0, k0, xf, yf, theta_f+theta_0, kf);
                             printf("----------------\n");
                         end
                     end
