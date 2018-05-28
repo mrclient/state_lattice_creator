@@ -8,11 +8,32 @@ exec(path + 'utils.sci');
 // INPUT DATA
 N = 7;
 step = 0.25;
-theta_des = [2,0; 2,2; 0,2];
 k = [0, -4, 4];
 
-sz = size(theta_des);
-theta_num = sz(1);
+// to make an array of all needed angle
+i = 0;
+for x = 0:floor(N/2)
+    for y = 0:floor(N/2)
+        if x == 0 & y == 0 then
+            continue;
+        end
+        new_angle = atan(y, x);
+        if i==0 | find(theta_des==new_angle) == [] then
+            i = i + 1;
+            theta_des(:,i) = new_angle;
+            if new_angle >= %pi/4 & new_angle < %pi/2 then
+                i = i + 1;
+                theta_des(:,i) = %pi - new_angle;
+            end
+            if new_angle <= %pi/4 & new_angle > 0 then
+                i = i + 1;
+                theta_des(:,i) = -new_angle;
+            end
+        end
+    end
+end
+theta_des = gsort(theta_des, 'c', 'i');
+theta_num = ceil(i/2);
 
 total = 1;
 success = 1;
@@ -20,8 +41,8 @@ kolor = 1;
 v_file = mopen(path + "vertices.txt", "wt");
 p_file = mopen(path + "points.txt", "wt");
 for i = 1:theta_num
+    theta_0 = theta_des(i + floor(theta_num/2));
     for k0 = k
-        theta_0 = atan(theta_des(i,2), theta_des(i,1));
         for yf = 0:floor(N/2)
             for xf = 0:floor(N/2)
                 if xf == 0 & yf == 0 then
@@ -30,9 +51,19 @@ for i = 1:theta_num
                 new_xy = rotate([xf*step;yf*step], -theta_0);
                 new_xf = new_xy(1);
                 new_yf = new_xy(2);
-                for j = 1:theta_num
-                    theta_f = atan(theta_des(j,2), theta_des(j,1));
 
+                // NoT = number of theta
+                NoT = find(theta_des==atan(yf, xf));
+                NoT = NoT - floor(theta_num/2);
+                inf = NoT;
+                sup = NoT + theta_num - 1;
+                if NoT == 1 then
+                    sup = sup - floor(theta_num/2);
+                elseif NoT == theta_num
+                    inf = inf + floor(theta_num/2);
+                end
+                for j = inf:sup
+                    theta_f = theta_des(j);
                     // the ban of S-shaped turns
                     if clean([cos(theta_0), sin(theta_0)] * [-yf;xf] * [cos(theta_f), sin(theta_f)] * [-yf;xf]) > 0 then
                         continue;
